@@ -28,12 +28,17 @@ app.post('/api/books', (req, res) => {
   res.status(201).json(book);
 });
 
-// Task 3: Retrieve and search books.
+// Task 3: Retrieve all books or one book by ID.
 app.get('/api/books', (req, res) => {
-  const q = (req.query.q || '').toLowerCase();
-  res.json(books.filter(book =>
-    ['title', 'author', 'category'].some(key => book[key].toLowerCase().includes(q))
-  ));
+  res.json(books);
+});
+
+// Task 6: Search books by title, ignoring letter case.
+app.get('/api/books/search', (req, res) => {
+  const title = (req.query.title || '').toLowerCase();
+  const matches = books.filter(book => book.title.toLowerCase().includes(title));
+  if (matches.length === 0) return res.status(404).json({ message: 'No matching books found.' });
+  res.json(matches);
 });
 
 app.get('/api/books/:id', (req, res) => {
@@ -51,14 +56,17 @@ app.put('/api/books/:id', (req, res) => {
   res.json(book);
 });
 
-// Task 5: Find and delete a specified book.
+// Task 5: Delete a book only when all copies are available.
 app.delete('/api/books/:id', (req, res) => {
   const index = books.findIndex(book => String(book.id) === req.params.id);
   if (index < 0) return res.status(404).json({ error: 'Book not found.' });
-  res.json(books.splice(index, 1)[0]);
+  if (books[index].available < books[index].quantity) {
+    return res.status(400).json({ error: 'Cannot delete a book while copies are issued.' });
+  }
+  res.json({ message: 'Book deleted successfully.', book: books.splice(index, 1)[0] });
 });
 
-// Task 6: Issue and return book copies.
+// Issue and return book copies.
 app.post('/api/books/:id/issue', (req, res) => {
   const book = findBook(req.params.id);
   if (!book) return res.status(404).json({ error: 'Book not found.' });

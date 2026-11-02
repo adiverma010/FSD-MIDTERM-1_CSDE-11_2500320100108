@@ -5,10 +5,11 @@ Server: `http://localhost:3000` (set `PORT` to change it).
 | Method | Route | Purpose |
 |---|---|---|
 | POST | `/api/books` | Add a book |
-| GET | `/api/books` | List books; optional search: `?q=java` |
+| GET | `/api/books` | List all books |
 | GET | `/api/books/:id` | Get one book |
 | PUT | `/api/books/:id` | Update book details (ID stays unchanged) |
-| DELETE | `/api/books/:id` | Delete a book |
+| DELETE | `/api/books/:id` | Delete only if all copies are available |
+| GET | `/api/books/search?title=java` | Search titles without case sensitivity |
 | POST | `/api/books/:id/issue` | Issue one copy |
 | POST | `/api/books/:id/return` | Return one copy |
 
